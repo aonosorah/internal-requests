@@ -34,4 +34,9 @@ public class DemandRepository : IDemandRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == id);
     }
+public async Task UpdateAsync(Demand demand)
+{
+    _context.Demands.Update(demand);
+    await _context.SaveChangesAsync();
+}
 }

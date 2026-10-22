@@ -55,4 +55,11 @@ public class Demand
             ? DemandPriority.High
             : DemandPriority.Normal;
     }
+    public void UpdateStatus(DemandStatus status)
+{
+    if (!Enum.IsDefined(typeof(DemandStatus), status))
+        throw new ArgumentException("Status inválido.");
+
+    Status = status;
+}
 }

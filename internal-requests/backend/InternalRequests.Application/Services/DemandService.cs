@@ -66,4 +66,31 @@ public class DemandService
             Priority = demand.Priority
         };
     }
+    public async Task<DemandResponse?> UpdateStatusAsync(
+    Guid id,
+    UpdateDemandStatusRequest request)
+{
+    if (request?.Status is null)
+        throw new ArgumentException("Status é obrigatório.");
+
+    var demand = await _repository.GetByIdAsync(id);
+
+    if (demand is null)
+        return null;
+
+    demand.UpdateStatus(request.Status.Value);
+
+    await _repository.UpdateAsync(demand);
+
+    return new DemandResponse
+    {
+        Id = demand.Id,
+        Title = demand.Title,
+        Description = demand.Description,
+        RequestDate = demand.RequestDate,
+        Sector = demand.Sector,
+        Status = demand.Status,
+        Priority = demand.Priority
+    };
+}
 }
