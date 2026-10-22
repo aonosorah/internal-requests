@@ -1,5 +1,8 @@
+
+using InternalRequests.Application.DTOs;
 using InternalRequests.Application.Interfaces;
 using InternalRequests.Domain.Entities;
+using InternalRequests.Domain.Enums;
 using InternalRequests.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,9 +37,63 @@ public class DemandRepository : IDemandRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == id);
     }
-public async Task UpdateAsync(Demand demand)
-{
-    _context.Demands.Update(demand);
-    await _context.SaveChangesAsync();
-}
+
+    public async Task UpdateAsync(Demand demand)
+    {
+        _context.Demands.Update(demand);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<PagedResult<Demand>> GetPagedAsync(
+        int page,
+        int pageSize,
+        DemandStatus? status,
+        DemandPriority? priority,
+        string? sector
+    )
+    {
+        IQueryable<Demand> query = _context.Demands
+            .AsNoTracking();
+
+        // Filtrar por status
+        if (status.HasValue)
+        {
+            query = query.Where(d => d.Status == status.Value);
+        }
+
+        // Filtrar por prioridade
+        if (priority.HasValue)
+        {
+            query = query.Where(d => d.Priority == priority.Value);
+        }
+
+        // Filtrar por setor
+        if (!string.IsNullOrWhiteSpace(sector))
+        {
+            var normalizedSector = sector.Trim();
+
+            query = query.Where(d =>
+                EF.Functions.Like(d.Sector, $"%{normalizedSector}%")
+            );
+        }
+
+        // Contagem após aplicar os filtros
+        var totalCount = await query.CountAsync();
+
+        // Paginação no banco de dados
+        var items = await query
+            .OrderByDescending(d => d.RequestDate)
+            .ThenBy(d => d.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Demand>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
 }
