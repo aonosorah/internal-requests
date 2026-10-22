@@ -1,4 +1,4 @@
-
+using System.Text.Json.Serialization;
 using InternalRequests.Application.Interfaces;
 using InternalRequests.Application.Services;
 using InternalRequests.Infrastructure.Data;
@@ -7,16 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter()
+        );
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
+{
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+    );
+});
 
 builder.Services.AddScoped<IDemandRepository, DemandRepository>();
 builder.Services.AddScoped<DemandService>();
@@ -32,7 +39,10 @@ builder.Services.AddCors(options =>
 
                 return uri.Host == "localhost"
                     || uri.Host == "127.0.0.1"
-                    || uri.Host.EndsWith(".app.github.dev");
+                    || uri.Host.EndsWith(
+                        ".app.github.dev",
+                        StringComparison.OrdinalIgnoreCase
+                    );
             })
             .AllowAnyHeader()
             .AllowAnyMethod();

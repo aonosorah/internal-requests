@@ -480,3 +480,24 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# SQLite - arquivos locais
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Node.js
+node_modules/
+dist/
+.env
+.env.local
+
+# .NET
+**/bin/
+**/obj/
+
+# IDE
+.vs/
+.vscode/
