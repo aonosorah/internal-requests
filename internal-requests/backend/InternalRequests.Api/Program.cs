@@ -35,15 +35,23 @@ builder.Services.AddCors(options =>
         policy
             .SetIsOriginAllowed(origin =>
             {
-                var uri = new Uri(origin);
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                    return false;
 
-                return uri.Host == "localhost"
-                 || uri.Host == "127.0.0.1"
-                 || uri.Host == "internal-requests-gamma.vercel.app"
-                 || uri.Host.EndsWith(
-                      ".app.github.dev",
-                      StringComparison.OrdinalIgnoreCase
-    );
+                var host = uri.Host;
+
+                return host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                    || host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                    || host.Equals("internal-requests-gamma.vercel.app", StringComparison.OrdinalIgnoreCase)
+                    || host.Equals("internal-requests-git-second-aonosorahs-projects.vercel.app", StringComparison.OrdinalIgnoreCase)
+                    || host.EndsWith(
+                        "-aonosorahs-projects.vercel.app",
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                    || host.EndsWith(
+                        ".app.github.dev",
+                        StringComparison.OrdinalIgnoreCase
+                    );
             })
             .AllowAnyHeader()
             .AllowAnyMethod();
