@@ -7,7 +7,7 @@ import type {
 } from '../types/demand'
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://internal-requests-api.onrender.com/api',
   timeout: 10000,
 })
 
